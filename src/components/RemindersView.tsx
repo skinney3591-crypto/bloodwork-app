@@ -117,16 +117,50 @@ END:VCALENDAR`
   const completedCount = reminders.filter(r => r.completed).length
   const upcomingReminders = reminders.filter(r => !r.completed)
 
-  // Group reminders by time
-  const groupedReminders = reminders.reduce((acc, reminder) => {
-    if (!acc[reminder.time]) {
-      acc[reminder.time] = []
+  // Helper function to categorize time into time of day
+  const getTimeOfDay = (timeStr: string): 'Morning' | 'Afternoon' | 'Evening' => {
+    const [time, period] = timeStr.split(' ')
+    const [hours] = time.split(':')
+    let hour = parseInt(hours)
+    if (period === 'PM' && hour !== 12) hour += 12
+    if (period === 'AM' && hour === 12) hour = 0
+
+    if (hour >= 5 && hour < 12) return 'Morning'
+    if (hour >= 12 && hour < 17) return 'Afternoon'
+    return 'Evening'
+  }
+
+  // Group reminders by time of day
+  const groupedByTimeOfDay = reminders.reduce((acc, reminder) => {
+    const timeOfDay = getTimeOfDay(reminder.time)
+    if (!acc[timeOfDay]) {
+      acc[timeOfDay] = []
     }
-    acc[reminder.time].push(reminder)
+    acc[timeOfDay].push(reminder)
     return acc
   }, {} as Record<string, Reminder[]>)
 
-  const sortedTimes = Object.keys(groupedReminders).sort()
+  // Sort each group by time
+  Object.keys(groupedByTimeOfDay).forEach(timeOfDay => {
+    groupedByTimeOfDay[timeOfDay].sort((a, b) => {
+      const aTime = a.time.replace(/(\d+):(\d+) (\w+)/, (_, h, m, p) => {
+        let hour = parseInt(h)
+        if (p === 'PM' && hour !== 12) hour += 12
+        if (p === 'AM' && hour === 12) hour = 0
+        return `${hour.toString().padStart(2, '0')}:${m}`
+      })
+      const bTime = b.time.replace(/(\d+):(\d+) (\w+)/, (_, h, m, p) => {
+        let hour = parseInt(h)
+        if (p === 'PM' && hour !== 12) hour += 12
+        if (p === 'AM' && hour === 12) hour = 0
+        return `${hour.toString().padStart(2, '0')}:${m}`
+      })
+      return aTime.localeCompare(bTime)
+    })
+  })
+
+  const timeOfDayOrder = ['Morning', 'Afternoon', 'Evening']
+  const sortedTimeOfDay = timeOfDayOrder.filter(tod => groupedByTimeOfDay[tod])
 
   return (
     <div className="space-y-6">
@@ -379,26 +413,33 @@ END:VCALENDAR`
         </div>
       </div>
 
-      {/* Reminders Timeline */}
+      {/* Reminders Timeline - Grouped by Time of Day */}
       <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
           <Clock className="h-5 w-5 mr-2 text-orange-600" />
           Today's Schedule
         </h3>
-        <div className="space-y-6">
-          {sortedTimes.map((time) => (
-            <div key={time} className="relative">
-              {/* Time Header */}
-              <div className="flex items-center mb-3">
-                <div className="bg-orange-500 text-white font-bold px-4 py-2 rounded-lg shadow-md">
-                  {time}
+        <div className="space-y-8">
+          {sortedTimeOfDay.map((timeOfDay) => (
+            <div key={timeOfDay} className="relative">
+              {/* Time of Day Header */}
+              <div className="flex items-center mb-4">
+                <div className={`text-white font-bold px-6 py-3 rounded-xl shadow-lg text-lg ${
+                  timeOfDay === 'Morning' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                  timeOfDay === 'Afternoon' ? 'bg-gradient-to-r from-blue-500 to-indigo-500' :
+                  'bg-gradient-to-r from-purple-500 to-pink-500'
+                }`}>
+                  {timeOfDay === 'Morning' && '🌅 '}
+                  {timeOfDay === 'Afternoon' && '☀️ '}
+                  {timeOfDay === 'Evening' && '🌙 '}
+                  {timeOfDay}
                 </div>
-                <div className="flex-1 h-0.5 bg-gray-200 ml-4"></div>
+                <div className="flex-1 h-1 bg-gradient-to-r from-gray-300 to-transparent ml-4 rounded"></div>
               </div>
 
-              {/* Reminders for this time */}
+              {/* Reminders for this time of day */}
               <div className="ml-8 space-y-3">
-                {groupedReminders[time].map((reminder) => (
+                {groupedByTimeOfDay[timeOfDay].map((reminder) => (
                   <div
                     key={reminder.id}
                     className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all hover:shadow-md ${
