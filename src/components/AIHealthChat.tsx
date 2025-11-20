@@ -29,6 +29,7 @@ interface AIHealthChatProps {
   context?: ChatContext
   messages?: ChatMessage[]
   onSendMessage?: (message: string) => Promise<ChatMessage>
+  initialMessage?: string // Pre-populate the input with a question
 }
 
 // Mock conversation - replace with API calls
@@ -86,9 +87,10 @@ const suggestedQuestions = [
 export default function AIHealthChat({
   messages = mockMessages,
   onSendMessage,
+  initialMessage = '',
 }: AIHealthChatProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(messages)
-  const [newMessage, setNewMessage] = useState('')
+  const [newMessage, setNewMessage] = useState(initialMessage)
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 

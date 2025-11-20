@@ -30,11 +30,19 @@ function App() {
   const [messagesSubTab, setMessagesSubTab] = useState<'ai' | 'clinician'>('ai')
   const [reminders, setReminders] = useState<Reminder[]>(customer1Data.reminders)
   const [showVisitSummary, setShowVisitSummary] = useState(false)
+  const [aiChatInitialMessage, setAiChatInitialMessage] = useState<string>('')
 
   const toggleReminder = (id: string) => {
     setReminders(reminders.map(reminder =>
       reminder.id === id ? { ...reminder, completed: !reminder.completed } : reminder
     ))
+  }
+
+  const handleAskAIAboutMarker = (markerName: string, value: number, unit: string, status: string) => {
+    const question = `I see my ${markerName} is ${value} ${unit} and marked as "${status}". Can you explain what this means and what I should do about it?`
+    setAiChatInitialMessage(question)
+    setActiveTab('messages')
+    setMessagesSubTab('ai')
   }
 
   // Apply font size to document - larger defaults for accessibility
@@ -294,7 +302,7 @@ function App() {
               </button>
             </div>
 
-            {labsSubTab === 'results' && <BloodworkView data={customer1Data.bloodwork} testDate={customer1Data.testDate} />}
+            {labsSubTab === 'results' && <BloodworkView data={customer1Data.bloodwork} testDate={customer1Data.testDate} onAskAI={handleAskAIAboutMarker} />}
             {labsSubTab === 'trends' && (
               <TrendsView
                 activityHistory={customer1Data.activityHistory}
@@ -389,7 +397,7 @@ function App() {
               </button>
             </div>
 
-            {messagesSubTab === 'ai' && <AIHealthChat />}
+            {messagesSubTab === 'ai' && <AIHealthChat initialMessage={aiChatInitialMessage} />}
             {messagesSubTab === 'clinician' && <DoctorMessaging />}
           </div>
         )}
