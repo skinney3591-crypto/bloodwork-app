@@ -7,10 +7,11 @@ interface DashboardOverviewProps {
   data: CustomerData
   reminders: Reminder[]
   onToggleReminder: (id: string) => void
-  onNavigateToReminders: () => void
+  onNavigateToPlan: () => void
+  onNavigateToLabs: () => void
 }
 
-export default function DashboardOverview({ data, reminders, onToggleReminder, onNavigateToReminders }: DashboardOverviewProps) {
+export default function DashboardOverview({ data, reminders, onToggleReminder, onNavigateToPlan, onNavigateToLabs }: DashboardOverviewProps) {
   const abnormalResults = data.bloodwork.filter(item => item.status !== 'normal')
   const lowResults = data.bloodwork.filter(item => item.status === 'low')
   const highResults = data.bloodwork.filter(item => item.status === 'high')
@@ -143,12 +144,12 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
               </button>
             ))}
 
-            {/* View All Reminders Link */}
+            {/* View Full Schedule Link */}
             <button
-              onClick={onNavigateToReminders}
+              onClick={onNavigateToPlan}
               className="w-full flex items-center justify-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium"
             >
-              View All {totalReminders} Reminders
+              View Full Schedule
               <ArrowRight className="h-4 w-4 ml-2" />
             </button>
           </div>
@@ -537,6 +538,15 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
               {data.bloodwork.length - abnormalResults.length} out of {data.bloodwork.length} tests are within normal range
             </p>
           </div>
+
+          {/* View Full Labs Button */}
+          <button
+            onClick={onNavigateToLabs}
+            className="w-full flex items-center justify-center p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors font-semibold"
+          >
+            View Full Lab Results
+            <ArrowRight className="h-5 w-5 ml-2" />
+          </button>
         </div>
       </div>
 

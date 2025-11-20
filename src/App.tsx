@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Activity, Pill, Bell, FileText, User, Clock, MessageCircle, TrendingUp, ClipboardCheck, Type, UtensilsCrossed, Moon, Dumbbell, BarChart3, Settings } from 'lucide-react'
+import { Activity, Pill, FileText, User, Clock, MessageCircle, TrendingUp, ClipboardCheck, Type, Moon, Dumbbell, BarChart3, Settings } from 'lucide-react'
 import { customer1Data } from './data/mockData'
 import type { Reminder } from './data/mockData'
 import BloodworkView from './components/BloodworkView'
@@ -11,24 +11,22 @@ import DashboardOverview from './components/DashboardOverview'
 import DoctorMessaging from './components/DoctorMessaging'
 import AIHealthChat from './components/AIHealthChat'
 import TrendsView from './components/TrendsView'
-import WeeklyCheckIn from './components/WeeklyCheckIn'
-import MealsView from './components/MealsView'
 import ActivityToday from './components/ActivityToday'
 import SleepView from './components/SleepView'
 import WorkoutsLog from './components/WorkoutsLog'
 import ActivityTrends from './components/ActivityTrends'
 import DeviceSettings from './components/DeviceSettings'
 
-// Simplified tab structure for better UX
-type TabType = 'overview' | 'activity' | 'results' | 'plan' | 'meals' | 'messages' | 'reminders' | 'checkin' | 'settings'
+// Patient-first portal navigation structure
+type TabType = 'dashboard' | 'labs' | 'plan' | 'activity' | 'messages' | 'settings'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium')
   const [activitySubTab, setActivitySubTab] = useState<'today' | 'sleep' | 'workouts' | 'trends'>('today')
-  const [planSubTab, setPlanSubTab] = useState<'supplements' | 'medications' | 'exercise'>('supplements')
-  const [resultsSubTab, setResultsSubTab] = useState<'bloodwork' | 'trends'>('bloodwork')
-  const [messagesSubTab, setMessagesSubTab] = useState<'doctor' | 'questions'>('doctor')
+  const [planSubTab, setPlanSubTab] = useState<'schedule' | 'medications' | 'supplements' | 'exercise'>('schedule')
+  const [labsSubTab, setLabsSubTab] = useState<'results' | 'trends'>('results')
+  const [messagesSubTab, setMessagesSubTab] = useState<'ai' | 'clinician'>('ai')
   const [reminders, setReminders] = useState<Reminder[]>(customer1Data.reminders)
 
   const toggleReminder = (id: string) => {
@@ -48,15 +46,13 @@ function App() {
   const daysSinceCheckIn = Math.floor((new Date().getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24))
   const checkInDue = daysSinceCheckIn >= 7
 
-  // Simplified navigation - 7 main tabs
+  // Patient-first navigation - 5 main tabs
   const tabs = [
-    { id: 'overview' as TabType, label: 'Overview', icon: TrendingUp },
+    { id: 'dashboard' as TabType, label: 'Dashboard', icon: TrendingUp },
+    { id: 'labs' as TabType, label: 'Labs', icon: FileText },
+    { id: 'plan' as TabType, label: 'Plan', icon: Pill },
     { id: 'activity' as TabType, label: 'Activity', icon: Activity },
-    { id: 'results' as TabType, label: 'My Results', icon: FileText },
-    { id: 'plan' as TabType, label: 'My Plan', icon: Pill },
-    { id: 'meals' as TabType, label: 'Meals', icon: UtensilsCrossed },
     { id: 'messages' as TabType, label: 'Messages', icon: MessageCircle },
-    { id: 'reminders' as TabType, label: 'Reminders', icon: Bell },
   ]
 
   const doctorReviewStatusColors = {
@@ -125,9 +121,9 @@ function App() {
                 <Settings className="h-5 w-5" />
               </button>
 
-              {/* Weekly Check-In Button */}
+              {/* Weekly Check-In Button - Navigates to Dashboard */}
               <button
-                onClick={() => setActiveTab('checkin')}
+                onClick={() => setActiveTab('dashboard')}
                 className={`relative px-4 py-2 rounded-lg border-2 font-semibold text-sm flex items-center space-x-2 transition-colors ${
                   checkInDue
                     ? 'bg-rose-50 border-rose-300 text-rose-800 hover:bg-rose-100'
@@ -187,12 +183,13 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && (
+        {activeTab === 'dashboard' && (
           <DashboardOverview
             data={customer1Data}
             reminders={reminders}
             onToggleReminder={toggleReminder}
-            onNavigateToReminders={() => setActiveTab('reminders')}
+            onNavigateToPlan={() => setActiveTab('plan')}
+            onNavigateToLabs={() => setActiveTab('labs')}
           />
         )}
 
@@ -266,14 +263,14 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'results' && (
+        {activeTab === 'labs' && (
           <div className="space-y-6">
             {/* Sub-tab navigation - 44px min touch targets */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex space-x-2">
               <button
-                onClick={() => setResultsSubTab('bloodwork')}
+                onClick={() => setLabsSubTab('results')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                  resultsSubTab === 'bloodwork'
+                  labsSubTab === 'results'
                     ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
@@ -282,9 +279,9 @@ function App() {
                 Lab Results
               </button>
               <button
-                onClick={() => setResultsSubTab('trends')}
+                onClick={() => setLabsSubTab('trends')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                  resultsSubTab === 'trends'
+                  labsSubTab === 'trends'
                     ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
@@ -294,8 +291,8 @@ function App() {
               </button>
             </div>
 
-            {resultsSubTab === 'bloodwork' && <BloodworkView data={customer1Data.bloodwork} testDate={customer1Data.testDate} />}
-            {resultsSubTab === 'trends' && (
+            {labsSubTab === 'results' && <BloodworkView data={customer1Data.bloodwork} testDate={customer1Data.testDate} />}
+            {labsSubTab === 'trends' && (
               <TrendsView
                 activityHistory={customer1Data.activityHistory}
                 sleepHistory={customer1Data.sleepHistory}
@@ -309,15 +306,15 @@ function App() {
             {/* Sub-tab navigation - 44px min touch targets */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex space-x-2">
               <button
-                onClick={() => setPlanSubTab('supplements')}
+                onClick={() => setPlanSubTab('schedule')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                  planSubTab === 'supplements'
+                  planSubTab === 'schedule'
                     ? 'bg-green-100 text-green-700 border-2 border-green-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
               >
-                <Pill className="h-5 w-5 inline mr-2" />
-                Supplements
+                <Clock className="h-5 w-5 inline mr-2" />
+                Today's Schedule
               </button>
               <button
                 onClick={() => setPlanSubTab('medications')}
@@ -329,6 +326,17 @@ function App() {
               >
                 <Pill className="h-5 w-5 inline mr-2" />
                 Medications
+              </button>
+              <button
+                onClick={() => setPlanSubTab('supplements')}
+                className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
+                  planSubTab === 'supplements'
+                    ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                    : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
+                }`}
+              >
+                <Pill className="h-5 w-5 inline mr-2" />
+                Supplements
               </button>
               <button
                 onClick={() => setPlanSubTab('exercise')}
@@ -343,8 +351,9 @@ function App() {
               </button>
             </div>
 
-            {planSubTab === 'supplements' && <SupplementsView supplements={customer1Data.supplements} />}
+            {planSubTab === 'schedule' && <RemindersView reminders={reminders} onToggleReminder={toggleReminder} workoutHistory={customer1Data.workoutHistory} />}
             {planSubTab === 'medications' && <MedicationsView medications={customer1Data.medications} />}
+            {planSubTab === 'supplements' && <SupplementsView supplements={customer1Data.supplements} />}
             {planSubTab === 'exercise' && <ExerciseView exercises={customer1Data.exercises} workoutHistory={customer1Data.workoutHistory} />}
           </div>
         )}
@@ -354,43 +363,34 @@ function App() {
             {/* Sub-tab navigation - 44px min touch targets */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex space-x-2">
               <button
-                onClick={() => setMessagesSubTab('doctor')}
+                onClick={() => setMessagesSubTab('ai')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                  messagesSubTab === 'doctor'
-                    ? 'bg-purple-100 text-purple-700 border-2 border-purple-300'
-                    : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
-                }`}
-              >
-                <User className="h-5 w-5 inline mr-2" />
-                Doctor Messages
-              </button>
-              <button
-                onClick={() => setMessagesSubTab('questions')}
-                className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                  messagesSubTab === 'questions'
+                  messagesSubTab === 'ai'
                     ? 'bg-purple-100 text-purple-700 border-2 border-purple-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
               >
                 <MessageCircle className="h-5 w-5 inline mr-2" />
-                Ask Questions
+                AI Assistant
+              </button>
+              <button
+                onClick={() => setMessagesSubTab('clinician')}
+                className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
+                  messagesSubTab === 'clinician'
+                    ? 'bg-purple-100 text-purple-700 border-2 border-purple-300'
+                    : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
+                }`}
+              >
+                <User className="h-5 w-5 inline mr-2" />
+                My Clinician
               </button>
             </div>
 
-            {messagesSubTab === 'doctor' && <DoctorMessaging />}
-            {messagesSubTab === 'questions' && <AIHealthChat />}
+            {messagesSubTab === 'ai' && <AIHealthChat />}
+            {messagesSubTab === 'clinician' && <DoctorMessaging />}
           </div>
         )}
 
-        {activeTab === 'meals' && <MealsView />}
-
-        {activeTab === 'reminders' && <RemindersView reminders={reminders} onToggleReminder={toggleReminder} workoutHistory={customer1Data.workoutHistory} />}
-        {activeTab === 'checkin' && (
-          <WeeklyCheckIn
-            activityHistory={customer1Data.activityHistory}
-            sleepHistory={customer1Data.sleepHistory}
-          />
-        )}
         {activeTab === 'settings' && <DeviceSettings />}
       </main>
     </div>
