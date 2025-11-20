@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Pill, AlertTriangle, Info, Stethoscope, TrendingUp, BookOpen, ExternalLink, ChevronDown, ChevronUp, FileText, FlaskConical, ScrollText } from 'lucide-react'
+import { Pill, AlertTriangle, Info, Stethoscope, TrendingUp, BookOpen, ExternalLink, ChevronDown, ChevronUp, FileText, FlaskConical, ScrollText, Target } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import type { Medication, Citation } from '../data/mockData'
+import type { Medication, Citation, CustomerData } from '../data/mockData'
 
 interface MedicationsViewProps {
   medications: Medication[]
+  bloodwork?: CustomerData['bloodwork']
 }
 
 // Helper to get study type icon and color
@@ -71,8 +72,41 @@ const adherenceData = [
   { day: 'Sun', adherence: 75 },
 ]
 
-export default function MedicationsView({ medications }: MedicationsViewProps) {
+export default function MedicationsView({ medications, bloodwork = [] }: MedicationsViewProps) {
   const [expandedCitations, setExpandedCitations] = useState<Set<string>>(new Set())
+
+  // Helper to get marker status color
+  const getMarkerStatusColor = (markerName: string) => {
+    const marker = bloodwork.find(m => m.name === markerName)
+    if (!marker) return 'bg-gray-100 text-gray-600'
+
+    switch (marker.riskLevel) {
+      case 'optimal':
+        return 'bg-green-100 text-green-700 border-green-300'
+      case 'borderline':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+      case 'elevated':
+        return 'bg-orange-100 text-orange-700 border-orange-300'
+      case 'high':
+      case 'critical':
+        return 'bg-red-100 text-red-700 border-red-300'
+      default:
+        return 'bg-gray-100 text-gray-600'
+    }
+  }
+
+  // Helper to get marker value display
+  const getMarkerDisplay = (markerName: string) => {
+    const marker = bloodwork.find(m => m.name === markerName)
+    if (!marker) return { value: 'N/A', trend: '', unit: '' }
+
+    return {
+      value: marker.value.toString(),
+      trend: marker.trend,
+      unit: marker.unit,
+      status: marker.status
+    }
+  }
 
   const toggleCitations = (name: string) => {
     setExpandedCitations(prev => {
@@ -265,6 +299,39 @@ export default function MedicationsView({ medications }: MedicationsViewProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Target Markers - Shows which lab markers this medication supports */}
+              {medication.targetMarkers && medication.targetMarkers.length > 0 && (
+                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
+                  <div className="flex items-start space-x-2">
+                    <Target className="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-xs text-teal-600 uppercase font-bold mb-2">Lab Markers This Supports</p>
+                      <div className="flex flex-wrap gap-2">
+                        {medication.targetMarkers.map((markerName, idx) => {
+                          const markerDisplay = getMarkerDisplay(markerName)
+                          const statusColor = getMarkerStatusColor(markerName)
+                          return (
+                            <div
+                              key={idx}
+                              className={`px-3 py-2 rounded-lg border ${statusColor} flex items-center space-x-2`}
+                            >
+                              <div>
+                                <p className="text-xs font-bold">{markerName}</p>
+                                <p className="text-xs">
+                                  {markerDisplay.value} {markerDisplay.unit}
+                                  {markerDisplay.trend === 'improving' && ' ↓'}
+                                  {markerDisplay.trend === 'worsening' && ' ↑'}
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Side Effects */}
               <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">

@@ -56,6 +56,7 @@ export interface Supplement {
   timing: string;
   dosageJustification?: string;
   citations?: Citation[];
+  targetMarkers?: string[]; // Blood markers this supplement supports
 }
 
 export interface Medication {
@@ -66,6 +67,7 @@ export interface Medication {
   sideEffects: string[];
   dosageJustification?: string;
   citations?: Citation[];
+  targetMarkers?: string[]; // Blood markers this medication targets
 }
 
 export interface Exercise {
@@ -508,6 +510,7 @@ export const customer1Data: CustomerData = {
       reason: 'Low vitamin D levels (28 ng/mL)',
       timing: 'With breakfast',
       dosageJustification: '5000 IU recommended for levels 20-29 ng/mL per Endocrine Society guidelines',
+      targetMarkers: ['Vitamin D (25-OH)', 'Calcium', 'Testosterone (Total)', 'HbA1c (Hemoglobin A1c)'],
       citations: [
         { title: 'Evaluation, Treatment, and Prevention of Vitamin D Deficiency', source: 'Endocrine Society', url: 'https://pubmed.ncbi.nlm.nih.gov/21646368/', year: 2011, studyType: 'guideline', takeaway: '5000 IU daily for insufficiency, retest in 8-12 weeks' },
         { title: 'Effect of vitamin D supplementation on metabolic parameters', source: 'J Clin Endocrinol Metab', url: 'https://pubmed.ncbi.nlm.nih.gov/29878148/', year: 2018, studyType: 'meta-analysis', takeaway: 'Improved insulin sensitivity in 82% of participants' },
@@ -520,6 +523,7 @@ export const customer1Data: CustomerData = {
       reason: 'Support cardiovascular health and reduce triglycerides',
       timing: 'With lunch',
       dosageJustification: '2000mg EPA/DHA shown effective for triglycerides 150-500 mg/dL',
+      targetMarkers: ['Triglycerides', 'HDL Cholesterol', 'C-Reactive Protein (hs-CRP)', 'VLDL Cholesterol'],
       citations: [
         { title: 'Omega-3 Fatty Acids for Cardiovascular Disease', source: 'Circulation', url: 'https://pubmed.ncbi.nlm.nih.gov/29773586/', year: 2018, studyType: 'guideline', takeaway: 'Reduces triglycerides by 20-30% at therapeutic doses' },
         { title: 'Prescription omega-3 fatty acids for hypertriglyceridemia', source: 'Mayo Clin Proc', url: 'https://pubmed.ncbi.nlm.nih.gov/31060914/', year: 2019, studyType: 'review', takeaway: 'Greatest benefit at 2-4g daily EPA/DHA' },
@@ -532,6 +536,7 @@ export const customer1Data: CustomerData = {
       reason: 'Support metabolic function and sleep quality',
       timing: 'Before bed',
       dosageJustification: '400mg is RDA for adult males; glycinate form best for sleep',
+      targetMarkers: ['Magnesium', 'Glucose (Fasting)', 'Insulin (Fasting)'],
       citations: [
         { title: 'Magnesium in Prevention and Therapy', source: 'Nutrients', url: 'https://pubmed.ncbi.nlm.nih.gov/26404370/', year: 2015, studyType: 'review', takeaway: 'Improves insulin sensitivity and sleep quality' },
       ]
@@ -543,6 +548,7 @@ export const customer1Data: CustomerData = {
       reason: 'Support healthy blood sugar levels (Glucose: 112 mg/dL, HbA1c: 5.8%)',
       timing: 'Before meals',
       dosageJustification: '500mg twice daily shown equivalent to metformin 500mg for glucose control',
+      targetMarkers: ['Glucose (Fasting)', 'HbA1c (Hemoglobin A1c)', 'Insulin (Fasting)', 'Triglycerides'],
       citations: [
         { title: 'Berberine in the Treatment of Type 2 Diabetes Mellitus', source: 'Metabolism', url: 'https://pubmed.ncbi.nlm.nih.gov/18442638/', year: 2008, studyType: 'rct', takeaway: 'Reduced HbA1c by 0.5% and fasting glucose by 21%' },
         { title: 'Efficacy and safety of berberine for glycemic control', source: 'J Ethnopharmacol', url: 'https://pubmed.ncbi.nlm.nih.gov/25176238/', year: 2015, studyType: 'meta-analysis', takeaway: 'Comparable to oral diabetes medications in 14 trials' },
@@ -555,6 +561,7 @@ export const customer1Data: CustomerData = {
       reason: 'Support cardiovascular health and energy production',
       timing: 'With breakfast',
       dosageJustification: '200mg recommended when taking statins to offset CoQ10 depletion',
+      targetMarkers: ['LDL Cholesterol', 'Total Cholesterol'],
       citations: [
         { title: 'Coenzyme Q10 supplementation in statin-treated patients', source: 'J Am Coll Cardiol', url: 'https://pubmed.ncbi.nlm.nih.gov/17482506/', year: 2007, studyType: 'rct', takeaway: 'Reduced muscle pain in 75% of statin users' },
       ]
@@ -569,6 +576,7 @@ export const customer1Data: CustomerData = {
       prescribedFor: 'High LDL cholesterol (145 mg/dL) and total cholesterol (215 mg/dL)',
       sideEffects: ['Muscle pain', 'Headache', 'Nausea'],
       dosageJustification: '10mg starting dose for LDL 130-189 mg/dL per ACC/AHA guidelines',
+      targetMarkers: ['LDL Cholesterol', 'Total Cholesterol', 'Triglycerides', 'C-Reactive Protein (hs-CRP)'],
       citations: [
         { title: 'ACC/AHA Guideline on the Management of Blood Cholesterol', source: 'Circulation', url: 'https://pubmed.ncbi.nlm.nih.gov/30586774/', year: 2018, studyType: 'guideline', takeaway: 'Moderate-intensity statin reduces LDL by 30-49%' },
         { title: 'Efficacy and safety of atorvastatin', source: 'Am J Cardiol', url: 'https://pubmed.ncbi.nlm.nih.gov/9894438/', year: 1998, studyType: 'rct', takeaway: '10mg reduces LDL by 39% on average in 6 weeks' },
@@ -581,6 +589,7 @@ export const customer1Data: CustomerData = {
       prescribedFor: 'Elevated fasting glucose (112 mg/dL) and HbA1c (5.8%)',
       sideEffects: ['Upset stomach', 'Diarrhea', 'Metallic taste'],
       dosageJustification: '500mg twice daily is standard starting dose for prediabetes/early diabetes',
+      targetMarkers: ['Glucose (Fasting)', 'HbA1c (Hemoglobin A1c)', 'Insulin (Fasting)', 'Triglycerides'],
       citations: [
         { title: 'Standards of Medical Care in Diabetes', source: 'ADA Diabetes Care', url: 'https://pubmed.ncbi.nlm.nih.gov/36507642/', year: 2023, studyType: 'guideline', takeaway: 'First-line pharmacotherapy for type 2 diabetes' },
         { title: 'Metformin for prevention of type 2 diabetes', source: 'Diabetes Prevention Program', url: 'https://pubmed.ncbi.nlm.nih.gov/11832527/', year: 2002, studyType: 'rct', takeaway: 'Reduced diabetes incidence by 31% over 3 years' },

@@ -352,8 +352,8 @@ function App() {
             </div>
 
             {planSubTab === 'schedule' && <RemindersView reminders={reminders} onToggleReminder={toggleReminder} workoutHistory={customer1Data.workoutHistory} />}
-            {planSubTab === 'medications' && <MedicationsView medications={customer1Data.medications} />}
-            {planSubTab === 'supplements' && <SupplementsView supplements={customer1Data.supplements} />}
+            {planSubTab === 'medications' && <MedicationsView medications={customer1Data.medications} bloodwork={customer1Data.bloodwork} />}
+            {planSubTab === 'supplements' && <SupplementsView supplements={customer1Data.supplements} bloodwork={customer1Data.bloodwork} />}
             {planSubTab === 'exercise' && <ExerciseView exercises={customer1Data.exercises} workoutHistory={customer1Data.workoutHistory} />}
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Pill, Clock, Info, AlertTriangle, DollarSign, BookOpen, ExternalLink, ChevronDown, ChevronUp, FileText, FlaskConical, ScrollText, Settings, Star, TrendingUp, Sparkles, X, Plus, ThumbsDown, MessageSquare, Flag } from 'lucide-react'
-import type { Supplement, Citation } from '../data/mockData'
+import { Pill, Clock, Info, AlertTriangle, DollarSign, BookOpen, ExternalLink, ChevronDown, ChevronUp, FileText, FlaskConical, ScrollText, Settings, Star, TrendingUp, Sparkles, X, Plus, ThumbsDown, MessageSquare, Flag, Target } from 'lucide-react'
+import type { Supplement, Citation, CustomerData } from '../data/mockData'
 import SupplementPreferences, { type SupplementPreferences as PrefsType } from './SupplementPreferences'
 
 // Feedback interface
@@ -31,6 +31,7 @@ const actionOptions = [
 
 interface SupplementsViewProps {
   supplements: Supplement[]
+  bloodwork?: CustomerData['bloodwork']
 }
 
 // Helper to get study type icon and color
@@ -175,11 +176,44 @@ const defaultPreferences: PrefsType = {
   optimizationGoals: []
 }
 
-export default function SupplementsView({ supplements }: SupplementsViewProps) {
+export default function SupplementsView({ supplements, bloodwork = [] }: SupplementsViewProps) {
   const [expandedCitations, setExpandedCitations] = useState<Set<string>>(new Set())
   const [showPreferences, setShowPreferences] = useState(false)
   const [preferences, setPreferences] = useState<PrefsType>(defaultPreferences)
   const [expandedOptimize, setExpandedOptimize] = useState<string | null>(null)
+
+  // Helper to get marker status color
+  const getMarkerStatusColor = (markerName: string) => {
+    const marker = bloodwork.find(m => m.name === markerName)
+    if (!marker) return 'bg-gray-100 text-gray-600'
+
+    switch (marker.riskLevel) {
+      case 'optimal':
+        return 'bg-green-100 text-green-700 border-green-300'
+      case 'borderline':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+      case 'elevated':
+        return 'bg-orange-100 text-orange-700 border-orange-300'
+      case 'high':
+      case 'critical':
+        return 'bg-red-100 text-red-700 border-red-300'
+      default:
+        return 'bg-gray-100 text-gray-600'
+    }
+  }
+
+  // Helper to get marker value display
+  const getMarkerDisplay = (markerName: string) => {
+    const marker = bloodwork.find(m => m.name === markerName)
+    if (!marker) return { value: 'N/A', trend: '', unit: '' }
+
+    return {
+      value: marker.value.toString(),
+      trend: marker.trend,
+      unit: marker.unit,
+      status: marker.status
+    }
+  }
 
   // Feedback state
   const [feedbackModal, setFeedbackModal] = useState<string | null>(null) // supplement name
@@ -651,6 +685,35 @@ export default function SupplementsView({ supplements }: SupplementsViewProps) {
                 </p>
                 <p className="text-sm text-purple-900">{supplement.reason}</p>
               </div>
+
+              {/* Target Markers - Shows which lab markers this supplement supports */}
+              {supplement.targetMarkers && supplement.targetMarkers.length > 0 && (
+                <div className="bg-teal-50 rounded-lg p-3">
+                  <p className="text-xs text-teal-600 uppercase font-medium mb-2 flex items-center">
+                    <Target className="h-3 w-3 mr-1" />
+                    Lab Markers This Supports
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {supplement.targetMarkers.map((markerName, idx) => {
+                      const markerDisplay = getMarkerDisplay(markerName)
+                      const statusColor = getMarkerStatusColor(markerName)
+                      return (
+                        <div
+                          key={idx}
+                          className={`px-2 py-1 rounded-lg border ${statusColor}`}
+                        >
+                          <p className="text-xs font-bold">{markerName}</p>
+                          <p className="text-xs">
+                            {markerDisplay.value} {markerDisplay.unit}
+                            {markerDisplay.trend === 'improving' && ' ↓'}
+                            {markerDisplay.trend === 'worsening' && ' ↑'}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Dosage Justification */}
               {supplement.dosageJustification && (
