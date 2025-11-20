@@ -8,7 +8,7 @@ type DeviceStatus = 'connected' | 'disconnected' | 'syncing' | 'error'
 interface Device {
   id: string
   name: string
-  type: 'fitbit' | 'apple' | 'oura'
+  type: 'fitbit' | 'apple_health' | 'oura'
   status: DeviceStatus
   lastSync: string
   battery: number | null
@@ -30,7 +30,7 @@ const mockDevices: Device[] = [
   {
     id: '2',
     name: 'Apple Watch Series 9',
-    type: 'apple',
+    type: 'apple_health',
     status: 'connected',
     lastSync: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 mins ago
     battery: 92,
