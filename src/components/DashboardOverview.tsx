@@ -9,9 +9,10 @@ interface DashboardOverviewProps {
   onToggleReminder: (id: string) => void
   onNavigateToPlan: () => void
   onNavigateToLabs: () => void
+  onOpenVisitSummary: () => void
 }
 
-export default function DashboardOverview({ data, reminders, onToggleReminder, onNavigateToPlan, onNavigateToLabs }: DashboardOverviewProps) {
+export default function DashboardOverview({ data, reminders, onToggleReminder, onNavigateToPlan, onNavigateToLabs, onOpenVisitSummary }: DashboardOverviewProps) {
   const abnormalResults = data.bloodwork.filter(item => item.status !== 'normal')
   const lowResults = data.bloodwork.filter(item => item.status === 'low')
   const highResults = data.bloodwork.filter(item => item.status === 'high')
@@ -88,7 +89,7 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
             </h2>
             <p className="text-purple-100 mb-4">Get a clean summary of your labs, plan, and progress - ready to share or print</p>
             <button
-              onClick={onNavigateToLabs}
+              onClick={onOpenVisitSummary}
               className="bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors flex items-center shadow-md"
             >
               Generate Visit Summary

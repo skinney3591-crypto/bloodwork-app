@@ -16,6 +16,7 @@ import SleepView from './components/SleepView'
 import WorkoutsLog from './components/WorkoutsLog'
 import ActivityTrends from './components/ActivityTrends'
 import DeviceSettings from './components/DeviceSettings'
+import VisitSummary from './components/VisitSummary'
 
 // Patient-first portal navigation structure
 type TabType = 'dashboard' | 'labs' | 'plan' | 'activity' | 'messages' | 'settings'
@@ -28,6 +29,7 @@ function App() {
   const [labsSubTab, setLabsSubTab] = useState<'results' | 'trends'>('results')
   const [messagesSubTab, setMessagesSubTab] = useState<'ai' | 'clinician'>('ai')
   const [reminders, setReminders] = useState<Reminder[]>(customer1Data.reminders)
+  const [showVisitSummary, setShowVisitSummary] = useState(false)
 
   const toggleReminder = (id: string) => {
     setReminders(reminders.map(reminder =>
@@ -190,6 +192,7 @@ function App() {
             onToggleReminder={toggleReminder}
             onNavigateToPlan={() => setActiveTab('plan')}
             onNavigateToLabs={() => setActiveTab('labs')}
+            onOpenVisitSummary={() => setShowVisitSummary(true)}
           />
         )}
 
@@ -393,6 +396,14 @@ function App() {
 
         {activeTab === 'settings' && <DeviceSettings />}
       </main>
+
+      {/* Visit Summary Modal */}
+      {showVisitSummary && (
+        <VisitSummary
+          data={customer1Data}
+          onClose={() => setShowVisitSummary(false)}
+        />
+      )}
     </div>
   )
 }
