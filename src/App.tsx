@@ -206,6 +206,40 @@ function App() {
 
         {activeTab === 'activity' && (
           <div className="space-y-6">
+            {/* Activity Overview Card */}
+            <div className="bg-gradient-to-r from-teal-600 to-green-700 rounded-xl shadow-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold flex items-center mb-2">
+                    <Activity className="h-7 w-7 mr-3" />
+                    Your Movement & Recovery
+                  </h2>
+                  <p className="text-teal-100 mb-4">Track your daily activity, sleep quality, and workouts to support your health goals</p>
+                  {(() => {
+                    const today = new Date().toISOString().split('T')[0]
+                    const todayActivity = customer1Data.activityHistory.find(a => a.date === today) || customer1Data.activityHistory[customer1Data.activityHistory.length - 1]
+                    const todaySleep = customer1Data.sleepHistory.find(s => s.date === today) || customer1Data.sleepHistory[customer1Data.sleepHistory.length - 1]
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
+                          <p className="text-teal-100 text-sm">Steps Today</p>
+                          <p className="text-3xl font-bold">{todayActivity.steps.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
+                          <p className="text-teal-100 text-sm">Active Minutes</p>
+                          <p className="text-3xl font-bold">{todayActivity.activeMinutes}</p>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
+                          <p className="text-teal-100 text-sm">Sleep Score</p>
+                          <p className="text-3xl font-bold">{todaySleep.sleepScore || 'N/A'}</p>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
+              </div>
+            </div>
+
             {/* Sub-tab navigation - 44px min touch targets */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex space-x-2">
               <button
