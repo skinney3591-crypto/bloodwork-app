@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle, TrendingUp, Calendar, Zap, ArrowUpRight, Sun, Pill, Clock, Circle, Star, ArrowRight, Activity, Heart, Footprints, Flame } from 'lucide-react'
+import { AlertCircle, CheckCircle, TrendingUp, Calendar, Zap, ArrowUpRight, Sun, Pill, Clock, Circle, Star, ArrowRight, Activity, Heart, Footprints, Flame, FileText } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import type { CustomerData, Reminder } from '../data/mockData'
 import DeviceBadge from './DeviceBadge'
@@ -78,6 +78,31 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
 
   return (
     <div className="space-y-6">
+      {/* Prepare for Doctor Visit - Priority Action */}
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold flex items-center mb-2">
+              <FileText className="h-7 w-7 mr-3" />
+              Prepare for Your Doctor Visit
+            </h2>
+            <p className="text-purple-100 mb-4">Get a clean summary of your labs, plan, and progress - ready to share or print</p>
+            <button
+              onClick={onNavigateToLabs}
+              className="bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors flex items-center shadow-md"
+            >
+              Generate Visit Summary
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </button>
+          </div>
+          <div className="hidden md:flex items-center justify-center ml-6">
+            <div className="bg-white/10 p-4 rounded-full">
+              <Calendar className="h-16 w-16 text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* What to Do Today - Primary Action Card */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
         <div className="flex items-start justify-between mb-4">
