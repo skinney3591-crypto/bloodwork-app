@@ -152,12 +152,12 @@ export default function DeviceSettings() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-start space-x-4">
                 <div className="mt-1">
-                  <DeviceIcon device={device.type} size="lg" />
+                  <DeviceIcon type={device.type} className="h-8 w-8" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-3 mb-2">
                     <h3 className="text-xl font-bold text-gray-900">{device.name}</h3>
-                    <DeviceBadge device={device.type} />
+                    <DeviceBadge type={device.type} />
                   </div>
                   <div className="flex items-center space-x-4 text-sm">
                     <div className={`flex items-center space-x-2 px-3 py-1 rounded-full font-medium ${getStatusColor(device.status)}`}>

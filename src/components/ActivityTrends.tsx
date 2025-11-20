@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Calendar, Target, Award, Activity, Footprints, Flame, Clock, Heart } from 'lucide-react'
+import { TrendingUp, TrendingDown, Calendar, Target, Award, Activity, Footprints, Flame, Heart } from 'lucide-react'
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts'
 import type { DailyActivity, SleepData } from '../data/mockData'
 

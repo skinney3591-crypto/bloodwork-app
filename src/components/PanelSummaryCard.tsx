@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle, AlertCircle, Info, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, AlertCircle, Info } from 'lucide-react'
 import type { PanelSummary } from '../data/mockData'
 
 interface PanelSummaryCardProps {

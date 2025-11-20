@@ -1,5 +1,5 @@
-import { Dumbbell, Clock, Flame, Heart, TrendingUp, MapPin, Calendar } from 'lucide-react'
-import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Dumbbell, Clock, Flame, Heart, TrendingUp, Calendar } from 'lucide-react'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Workout } from '../data/mockData'
 import DeviceBadge from './DeviceBadge'
 

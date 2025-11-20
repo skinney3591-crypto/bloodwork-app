@@ -20,7 +20,6 @@ export default function GaugeChart({
   optimalMax,
   unit,
   size = 'md',
-  status,
   riskLevel
 }: GaugeChartProps) {
   // Size configurations

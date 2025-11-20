@@ -164,7 +164,9 @@ END:VCALENDAR`
                   Your exercise reminders have been automatically marked complete.
                 </p>
                 <div className="mt-2 flex items-center space-x-2">
-                  <DeviceBadge type={todaysWorkouts[0].source} size="sm" />
+                  {todaysWorkouts[0].source !== 'manual' && (
+                    <DeviceBadge type={todaysWorkouts[0].source} size="sm" />
+                  )}
                   <span className="text-xs text-gray-600">
                     {todaysWorkouts.map(w => w.type).join(', ')}
                   </span>

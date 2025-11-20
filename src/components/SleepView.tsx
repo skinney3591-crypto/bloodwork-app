@@ -1,5 +1,5 @@
 import { Moon, Clock, TrendingUp, Heart, Wind, Zap } from 'lucide-react'
-import { AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { SleepData } from '../data/mockData'
 
 interface SleepViewProps {
@@ -24,43 +24,8 @@ export default function SleepView({ sleepHistory }: SleepViewProps) {
     { stage: 'Deep', hours: lastNight.stages.deep, color: '#1e40af', order: 1 }
   ]
 
-  // Generate hourly sleep stages for visualization (simulated)
-  const hourlyStages = Array.from({ length: Math.ceil(lastNight.duration) }, (_, i) => {
-    const hour = i
-    let stage = 'Light'
-
-    // Simulate sleep cycle pattern
-    if (i === 0 && lastNight.timeToSleep && lastNight.timeToSleep > 10) {
-      stage = 'Awake'
-    } else if (i < 1.5) {
-      stage = 'Light'
-    } else if (i < 2) {
-      stage = 'Deep'
-    } else if (i < 3) {
-      stage = 'Light'
-    } else if (i < 3.5) {
-      stage = 'REM'
-    } else if (i < 5) {
-      stage = 'Light'
-    } else if (i < 5.5) {
-      stage = 'Deep'
-    } else if (i < 6.5) {
-      stage = 'Light'
-    } else if (i < 7) {
-      stage = 'REM'
-    } else {
-      stage = 'Light'
-    }
-
-    return {
-      hour: `${i}h`,
-      stage,
-      stageValue: stage === 'Deep' ? 1 : stage === 'Light' ? 2 : stage === 'REM' ? 3 : 4
-    }
-  })
-
   // Weekly trend data
-  const weeklyTrend = last7Days.map((sleep, idx) => ({
+  const weeklyTrend = last7Days.map((sleep) => ({
     day: new Date(sleep.date).toLocaleDateString('en-US', { weekday: 'short' }),
     duration: sleep.duration,
     score: sleep.sleepScore || 0,

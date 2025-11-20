@@ -25,18 +25,6 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
     (bloodwork.filter(m => m.riskLevel === 'optimal').length / bloodwork.length) * 100
   )
 
-  // Get color based on risk level
-  const getRiskColor = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'optimal': return 'bg-green-500'
-      case 'borderline': return 'bg-yellow-500'
-      case 'elevated': return 'bg-orange-500'
-      case 'high': return 'bg-red-500'
-      case 'critical': return 'bg-red-700'
-      default: return 'bg-gray-400'
-    }
-  }
-
   const getRiskTextColor = (riskLevel: string) => {
     switch (riskLevel) {
       case 'optimal': return 'text-green-700'
