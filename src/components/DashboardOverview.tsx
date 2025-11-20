@@ -79,32 +79,7 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
 
   return (
     <div className="space-y-6">
-      {/* Prepare for Doctor Visit - Priority Action */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold flex items-center mb-2">
-              <FileText className="h-7 w-7 mr-3" />
-              Prepare for Your Doctor Visit
-            </h2>
-            <p className="text-purple-100 mb-4">Get a clean summary of your labs, plan, and progress - ready to share or print</p>
-            <button
-              onClick={onOpenVisitSummary}
-              className="bg-white text-purple-700 px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors flex items-center shadow-md"
-            >
-              Generate Visit Summary
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </button>
-          </div>
-          <div className="hidden md:flex items-center justify-center ml-6">
-            <div className="bg-white/10 p-4 rounded-full">
-              <Calendar className="h-16 w-16 text-white" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* What to Do Today - Primary Action Card */}
+      {/* What to Do Today - Hero Card */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -285,6 +260,26 @@ export default function DashboardOverview({ data, reminders, onToggleReminder, o
           })()}
         </div>
       )}
+
+      {/* Doctor Visit Prep - Subtle Card */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="flex items-center p-4">
+          <div className="bg-purple-100 p-3 rounded-lg mr-4">
+            <FileText className="h-6 w-6 text-purple-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base font-bold text-gray-900">Upcoming Doctor Visit?</h3>
+            <p className="text-sm text-gray-600">Generate a summary of your labs, plan, and progress</p>
+          </div>
+          <button
+            onClick={onOpenVisitSummary}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm flex items-center whitespace-nowrap"
+          >
+            Prepare Summary
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </button>
+        </div>
+      </div>
 
       {/* Progress Checklist with Priority Badges */}
       <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
