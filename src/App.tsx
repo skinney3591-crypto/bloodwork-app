@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Activity, Pill, FileText, User, Clock, MessageCircle, TrendingUp, ClipboardCheck, Type, Moon, Dumbbell, BarChart3, Settings } from 'lucide-react'
+import { Activity, Pill, FileText, User, Clock, MessageCircle, TrendingUp, ClipboardCheck, Type, Moon, Dumbbell, BarChart3, Settings, UtensilsCrossed } from 'lucide-react'
 import { customer1Data } from './data/mockData'
 import type { Reminder } from './data/mockData'
 import BloodworkView from './components/BloodworkView'
@@ -17,11 +17,18 @@ import WorkoutsLog from './components/WorkoutsLog'
 import ActivityTrends from './components/ActivityTrends'
 import DeviceSettings from './components/DeviceSettings'
 import VisitSummary from './components/VisitSummary'
+import MealsView from './components/MealsView'
+import ViewToggle from './components/ViewToggle'
+import DoctorPortal from './components/doctor/DoctorPortal'
 
 // Patient-first portal navigation structure
-type TabType = 'dashboard' | 'labs' | 'plan' | 'activity' | 'messages' | 'settings'
+type TabType = 'dashboard' | 'labs' | 'plan' | 'activity' | 'nutrition' | 'messages' | 'settings'
+type ViewType = 'patient' | 'doctor'
 
 function App() {
+  // Check localStorage for saved view preference
+  const savedView = localStorage.getItem('markr-view') as ViewType | null
+  const [currentView, setCurrentView] = useState<ViewType>(savedView || 'patient')
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium')
   const [activitySubTab, setActivitySubTab] = useState<'today' | 'sleep' | 'workouts' | 'trends'>('today')
@@ -56,12 +63,13 @@ function App() {
   const daysSinceCheckIn = Math.floor((new Date().getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24))
   const checkInDue = daysSinceCheckIn >= 7
 
-  // Patient-first navigation - 5 main tabs
+  // Patient-first navigation - 6 main tabs
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard', icon: TrendingUp },
     { id: 'labs' as TabType, label: 'Labs', icon: FileText },
     { id: 'plan' as TabType, label: 'Plan', icon: Pill },
     { id: 'activity' as TabType, label: 'Activity', icon: Activity },
+    { id: 'nutrition' as TabType, label: 'Nutrition', icon: UtensilsCrossed },
     { id: 'messages' as TabType, label: 'Messages', icon: MessageCircle },
   ]
 
@@ -78,18 +86,24 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <>
+      {/* View Toggle - always visible */}
+      <ViewToggle currentView={currentView} onToggle={setCurrentView} />
+
+      {/* Conditionally render Doctor or Patient portal */}
+      {currentView === 'doctor' ? (
+        <DoctorPortal />
+      ) : (
+        <>
+        <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl shadow-lg">
-                <Activity className="h-8 w-8 text-white" />
-              </div>
+              <img src="/logo.svg" alt="markr logo" className="h-10" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">HealthSync AI</h1>
-                <p className="text-sm text-gray-600">Personalized Health Insights</p>
+                <p className="text-sm text-gray-600">Understand your health markers</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -97,21 +111,21 @@ function App() {
               <div className="flex items-center bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setFontSize('small')}
-                  className={`p-2 rounded transition-colors ${fontSize === 'small' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`p-2 rounded transition-colors ${fontSize === 'small' ? 'bg-white shadow text-markr-blue' : 'text-gray-500 hover:text-gray-700'}`}
                   title="Small text"
                 >
                   <Type className="h-3 w-3" />
                 </button>
                 <button
                   onClick={() => setFontSize('medium')}
-                  className={`p-2 rounded transition-colors ${fontSize === 'medium' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`p-2 rounded transition-colors ${fontSize === 'medium' ? 'bg-white shadow text-markr-blue' : 'text-gray-500 hover:text-gray-700'}`}
                   title="Medium text"
                 >
                   <Type className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setFontSize('large')}
-                  className={`p-2 rounded transition-colors ${fontSize === 'large' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`p-2 rounded transition-colors ${fontSize === 'large' ? 'bg-white shadow text-markr-blue' : 'text-gray-500 hover:text-gray-700'}`}
                   title="Large text"
                 >
                   <Type className="h-5 w-5" />
@@ -178,7 +192,7 @@ function App() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-6 py-4 border-b-4 transition-all duration-200 font-medium ${
                     activeTab === tab.id
-                      ? 'border-blue-600 text-blue-600 bg-blue-50'
+                      ? 'border-markr-blue text-markr-blue bg-blue-50'
                       : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
@@ -316,7 +330,7 @@ function App() {
                 onClick={() => setLabsSubTab('results')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
                   labsSubTab === 'results'
-                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                    ? 'bg-blue-100 text-markr-blue border-2 border-blue-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
               >
@@ -327,7 +341,7 @@ function App() {
                 onClick={() => setLabsSubTab('trends')}
                 className={`flex-1 min-h-[44px] py-3 px-4 rounded-lg font-medium text-base transition-all ${
                   labsSubTab === 'trends'
-                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                    ? 'bg-blue-100 text-markr-blue border-2 border-blue-300'
                     : 'text-gray-600 hover:bg-gray-100 border-2 border-transparent'
                 }`}
               >
@@ -403,6 +417,12 @@ function App() {
           </div>
         )}
 
+        {activeTab === 'nutrition' && (
+          <div className="space-y-6">
+            <MealsView bloodworkIssues={customer1Data.bloodwork.filter(b => b.status !== 'normal').map(b => b.name)} />
+          </div>
+        )}
+
         {activeTab === 'messages' && (
           <div className="space-y-6">
             {/* Sub-tab navigation - 44px min touch targets */}
@@ -446,7 +466,10 @@ function App() {
           onClose={() => setShowVisitSummary(false)}
         />
       )}
-    </div>
+        </div>
+        </>
+      )}
+    </>
   )
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UtensilsCrossed, RefreshCw, Save, Check, Trash2, ChefHat, Sparkles } from 'lucide-react'
+import { UtensilsCrossed, RefreshCw, Save, Check, Trash2, ChefHat, Sparkles, Send, Bot } from 'lucide-react'
 
 // API-ready interfaces
 export interface Meal {
@@ -332,6 +332,13 @@ const mockMeals: Record<string, Meal[]> = {
   ],
 }
 
+interface ChatMessage {
+  id: string
+  role: 'user' | 'ai'
+  content: string
+  timestamp: Date
+}
+
 export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Prediabetic'] }: MealsViewProps) {
   const [selectedDiets, setSelectedDiets] = useState<string[]>([])
   const [currentMeals, setCurrentMeals] = useState<{ breakfast: Meal; lunch: Meal; dinner: Meal }>({
@@ -341,6 +348,18 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
   })
   const [savedMeals, setSavedMeals] = useState<Meal[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+
+  // AI Chat state
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      role: 'ai',
+      content: "Hi! I'm your nutrition AI assistant. Tell me what foods you're craving or thinking about, and I'll generate personalized meal ideas based on your health goals!",
+      timestamp: new Date()
+    }
+  ])
+  const [chatInput, setChatInput] = useState('')
+  const [isChatGenerating, setIsChatGenerating] = useState(false)
 
   const toggleDiet = (dietId: string) => {
     setSelectedDiets(prev =>
@@ -399,6 +418,34 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
 
   const isSaved = (mealId: string) => savedMeals.some(m => m.id === mealId)
 
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatInput.trim() || isChatGenerating) return
+
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: chatInput,
+      timestamp: new Date()
+    }
+    setChatMessages(prev => [...prev, userMessage])
+    setChatInput('')
+    setIsChatGenerating(true)
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'ai',
+        content: `Great choice! Based on your craving for "${chatInput}" and your health goals (${bloodworkIssues.join(', ')}), I can help you create a healthier version. Let me generate some meal ideas that incorporate those flavors while supporting your ${bloodworkIssues[0].toLowerCase()} management. Click "Generate Meals" below to see custom recipes!`,
+        timestamp: new Date()
+      }
+      setChatMessages(prev => [...prev, aiMessage])
+      setIsChatGenerating(false)
+    }, 1500)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -406,7 +453,7 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-              <UtensilsCrossed className="h-7 w-7 mr-3 text-orange-600" />
+              <UtensilsCrossed className="h-7 w-7 mr-3 text-markr-blue" />
               Personalized Meal Ideas
             </h2>
             <p className="text-sm text-gray-600 mt-1">Meals tailored to your health goals</p>
@@ -414,15 +461,92 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
         </div>
       </div>
 
+      {/* AI Chat Interface */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-markr-blue to-blue-600 p-4">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <Bot className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">AI Meal Generator</h3>
+              <p className="text-sm text-blue-100">Tell me what sounds good to you</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="p-4 bg-gray-50 max-h-80 overflow-y-auto space-y-3">
+          {chatMessages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  message.role === 'user'
+                    ? 'bg-markr-blue text-white'
+                    : 'bg-white border border-gray-200 text-gray-900'
+                }`}
+              >
+                {message.role === 'ai' && (
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Bot className="h-4 w-4 text-markr-blue" />
+                    <span className="text-xs font-semibold text-markr-blue">AI Assistant</span>
+                  </div>
+                )}
+                <p className="text-sm leading-relaxed">{message.content}</p>
+              </div>
+            </div>
+          ))}
+          {isChatGenerating && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2">
+                  <Bot className="h-4 w-4 text-markr-blue" />
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-markr-blue rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-markr-blue rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-markr-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Chat Input */}
+        <form onSubmit={handleChatSubmit} className="p-4 border-t border-gray-200 bg-white">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="e.g., I'm craving pasta, something spicy, tacos..."
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-markr-blue focus:border-transparent"
+              disabled={isChatGenerating}
+            />
+            <button
+              type="submit"
+              disabled={!chatInput.trim() || isChatGenerating}
+              className="px-6 py-3 bg-markr-blue text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            >
+              <Send className="h-4 w-4" />
+              <span>Send</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
       {/* Health Context */}
       <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
         <div className="flex items-start space-x-3">
-          <Sparkles className="h-5 w-5 text-blue-600 mt-0.5" />
+          <Sparkles className="h-5 w-5 text-markr-blue mt-0.5" />
           <div>
-            <p className="font-semibold text-blue-900">Your meals are optimized for:</p>
+            <p className="font-semibold text-deep-ink">Your meals are optimized for:</p>
             <div className="flex flex-wrap gap-2 mt-2">
               {bloodworkIssues.map((issue, idx) => (
-                <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                <span key={idx} className="px-2 py-1 bg-blue-100 text-markr-blue text-sm rounded-full">
                   {issue}
                 </span>
               ))}
@@ -441,7 +565,7 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
               onClick={() => toggleDiet(diet.id)}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 selectedDiets.includes(diet.id)
-                  ? 'bg-orange-100 text-orange-800 border-2 border-orange-500'
+                  ? 'bg-blue-100 text-markr-blue border-2 border-blue-300'
                   : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
               }`}
             >
@@ -506,7 +630,7 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
 
                 <div className="mb-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Why This Helps</p>
-                  <ul className="text-xs text-green-700 space-y-1">
+                  <ul className="text-xs text-success-green space-y-1">
                     {meal.healthBenefits.slice(0, 2).map((benefit, idx) => (
                       <li key={idx} className="flex items-start">
                         <span className="mr-1">✓</span>
@@ -523,8 +647,8 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
                     disabled={isSaved(meal.id)}
                     className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                       isSaved(meal.id)
-                        ? 'bg-green-100 text-green-700 cursor-default'
-                        : 'bg-orange-600 text-white hover:bg-orange-700'
+                        ? 'bg-green-100 text-success-green cursor-default'
+                        : 'bg-markr-blue text-white hover:bg-blue-700'
                     }`}
                   >
                     {isSaved(meal.id) ? (
@@ -557,7 +681,7 @@ export default function MealsView({ bloodworkIssues = ['High cholesterol', 'Pred
       {savedMeals.length > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-            <Save className="h-5 w-5 mr-2 text-orange-600" />
+            <Save className="h-5 w-5 mr-2 text-markr-blue" />
             My Saved Meals ({savedMeals.length})
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

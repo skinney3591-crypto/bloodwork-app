@@ -27,19 +27,19 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
 
   const getRiskTextColor = (riskLevel: string) => {
     switch (riskLevel) {
-      case 'optimal': return 'text-green-700'
-      case 'borderline': return 'text-yellow-700'
-      case 'elevated': return 'text-orange-700'
-      case 'high': return 'text-red-700'
-      case 'critical': return 'text-red-900'
+      case 'optimal': return 'text-success-green'
+      case 'borderline': return 'text-alert-amber'
+      case 'elevated': return 'text-alert-amber'
+      case 'high': return 'text-soft-red'
+      case 'critical': return 'text-soft-red'
       default: return 'text-gray-700'
     }
   }
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'improving': return <TrendingUp className="h-3 w-3 text-green-600" />
-      case 'worsening': return <TrendingDown className="h-3 w-3 text-red-600" />
+      case 'improving': return <TrendingUp className="h-3 w-3 text-success-green" />
+      case 'worsening': return <TrendingDown className="h-3 w-3 text-soft-red" />
       case 'stable': return <Minus className="h-3 w-3 text-gray-500" />
       default: return null
     }
@@ -67,18 +67,18 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return 'bg-green-100 border-green-300'
-      case 'good': return 'bg-blue-100 border-blue-300'
-      case 'needs_improvement': return 'bg-orange-100 border-orange-300'
-      case 'concerning': return 'bg-red-100 border-red-300'
-      default: return 'bg-gray-100 border-gray-300'
+      case 'excellent': return 'bg-green-50 border-green-300'
+      case 'good': return 'bg-blue-50 border-blue-300'
+      case 'needs_improvement': return 'bg-amber-50 border-amber-300'
+      case 'concerning': return 'bg-red-50 border-red-300'
+      default: return 'bg-gray-50 border-gray-300'
     }
   }
 
   return (
     <div className="space-y-6">
       {/* Header with Overall Score */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+      <div className="bg-markr-blue rounded-xl shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="bg-white/20 p-3 rounded-xl">
@@ -129,7 +129,7 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? 'bg-blue-600 text-white shadow-md'
+                  ? 'bg-markr-blue text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -152,8 +152,8 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
                 <div className="flex items-center space-x-3">
                   <h3 className="text-xl font-bold text-gray-900">{category}</h3>
                   <div className="flex items-center space-x-2">
-                    {panelStatus === 'excellent' && <CheckCircle2 className="h-5 w-5 text-green-600" />}
-                    {panelStatus === 'needs_improvement' && <AlertTriangle className="h-5 w-5 text-orange-600" />}
+                    {panelStatus === 'excellent' && <CheckCircle2 className="h-5 w-5 text-success-green" />}
+                    {panelStatus === 'needs_improvement' && <AlertTriangle className="h-5 w-5 text-alert-amber" />}
                     <span className="text-sm text-gray-600 capitalize">{panelStatus.replace('_', ' ')}</span>
                   </div>
                 </div>
@@ -180,13 +180,13 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
                     onMouseEnter={() => setHoveredMarker(marker.name)}
                     onMouseLeave={() => setHoveredMarker(null)}
                     className={`relative p-3 rounded-lg border-2 transition-all hover:scale-105 hover:shadow-lg ${
-                      hoveredMarker === marker.name ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+                      hoveredMarker === marker.name ? 'ring-2 ring-markr-blue ring-offset-2' : ''
                     } ${
                       marker.riskLevel === 'optimal' ? 'bg-green-50 border-green-300' :
-                      marker.riskLevel === 'borderline' ? 'bg-yellow-50 border-yellow-300' :
-                      marker.riskLevel === 'elevated' ? 'bg-orange-50 border-orange-300' :
+                      marker.riskLevel === 'borderline' ? 'bg-amber-50 border-amber-300' :
+                      marker.riskLevel === 'elevated' ? 'bg-amber-100 border-amber-400' :
                       marker.riskLevel === 'high' ? 'bg-red-50 border-red-300' :
-                      'bg-red-100 border-red-500'
+                      'bg-red-100 border-red-400'
                     }`}
                   >
                     {/* Trend Indicator */}
@@ -210,8 +210,8 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
                     {/* Change Indicator */}
                     {marker.changePercent !== 0 && (
                       <div className={`mt-1 text-xs font-medium ${
-                        marker.trend === 'improving' ? 'text-green-600' :
-                        marker.trend === 'worsening' ? 'text-red-600' :
+                        marker.trend === 'improving' ? 'text-success-green' :
+                        marker.trend === 'worsening' ? 'text-soft-red' :
                         'text-gray-500'
                       }`}>
                         {marker.changePercent > 0 ? '+' : ''}{marker.changePercent.toFixed(1)}%
@@ -225,7 +225,7 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
               {summary && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-start space-x-2">
-                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Info className="h-5 w-5 text-markr-blue mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-gray-700 leading-relaxed">
                       {summary.interpretation}
                     </p>
@@ -242,23 +242,23 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
         <h3 className="font-bold text-gray-900 mb-4">Risk Level Legend</h3>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-green-500"></div>
+            <div className="h-4 w-4 rounded bg-success-green"></div>
             <span className="text-sm text-gray-700">Optimal - Within ideal range</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-yellow-500"></div>
+            <div className="h-4 w-4 rounded bg-alert-amber"></div>
             <span className="text-sm text-gray-700">Borderline - Close to optimal</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-orange-500"></div>
+            <div className="h-4 w-4 rounded" style={{backgroundColor: '#F59E0B'}}></div>
             <span className="text-sm text-gray-700">Elevated - Needs attention</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-red-500"></div>
+            <div className="h-4 w-4 rounded bg-soft-red"></div>
             <span className="text-sm text-gray-700">High Risk - Requires action</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-red-700"></div>
+            <div className="h-4 w-4 rounded" style={{backgroundColor: '#DC2626'}}></div>
             <span className="text-sm text-gray-700">Critical - Urgent care needed</span>
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
         <h3 className="font-bold text-gray-900 mb-4 mt-6">Trend Indicators</h3>
         <div className="grid grid-cols-3 gap-4">
           <div className="flex items-center space-x-2">
-            <TrendingUp className="h-4 w-4 text-green-600" />
+            <TrendingUp className="h-4 w-4 text-success-green" />
             <span className="text-sm text-gray-700">Improving - Positive trend</span>
           </div>
           <div className="flex items-center space-x-2">
@@ -274,7 +274,7 @@ export default function HealthDashboard({ bloodwork, panelSummaries, onMarkerCli
             <span className="text-sm text-gray-700">Stable - No significant change</span>
           </div>
           <div className="flex items-center space-x-2">
-            <TrendingDown className="h-4 w-4 text-red-600" />
+            <TrendingDown className="h-4 w-4 text-soft-red" />
             <span className="text-sm text-gray-700">Worsening - Needs attention</span>
           </div>
         </div>

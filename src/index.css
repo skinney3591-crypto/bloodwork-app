@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Set default font family */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Toast animation */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out both;
+}
+
 /* Print-specific styles for better PDF/print output */
 @media print {
   /* Hide non-essential elements */
@@ -51,13 +75,13 @@
 
   /* Add title for print */
   main::before {
-    content: "HealthSync AI - Blood Panel Results";
+    content: "markr - Lab Results";
     display: block;
     font-size: 24pt;
     font-weight: bold;
     text-align: center;
     margin-bottom: 20pt;
-    color: #1f2937;
+    color: #1E293B;
   }
 
   /* Ensure charts don't break across pages */
