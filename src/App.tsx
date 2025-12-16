@@ -19,11 +19,14 @@ import DeviceSettings from './components/DeviceSettings'
 import VisitSummary from './components/VisitSummary'
 import MealsView from './components/MealsView'
 import ViewToggle from './components/ViewToggle'
+import type { ViewType } from './components/ViewToggle'
 import DoctorPortal from './components/doctor/DoctorPortal'
+import TrainerPortal from './components/trainer/TrainerPortal'
+import WorkoutLinkPopup from './components/WorkoutLinkPopup'
+import { mockPendingWorkoutLinks } from './data/mockTrainerData'
 
 // Patient-first portal navigation structure
 type TabType = 'dashboard' | 'labs' | 'plan' | 'activity' | 'nutrition' | 'messages' | 'settings'
-type ViewType = 'patient' | 'doctor'
 
 function App() {
   // Check localStorage for saved view preference
@@ -38,6 +41,50 @@ function App() {
   const [reminders, setReminders] = useState<Reminder[]>(customer1Data.reminders)
   const [showVisitSummary, setShowVisitSummary] = useState(false)
   const [aiChatInitialMessage, setAiChatInitialMessage] = useState<string>('')
+
+  // Workout Link Popup state - for demo, show popup for first pending link
+  // In a real app, this would check for actual pending workouts detected by the device
+  const [pendingWorkoutLinks] = useState(mockPendingWorkoutLinks)
+  const [showWorkoutLinkPopup, setShowWorkoutLinkPopup] = useState(false)
+  const [dismissedWorkouts, setDismissedWorkouts] = useState<Set<string>>(new Set())
+
+  // Show popup if there are pending links for the current "client"
+  // For demo purposes, we'll use client-001 (Sarah Johnson) which matches our customer1Data
+  const currentPendingLink = pendingWorkoutLinks.find(
+    link => link.clientId === 'client-001' && !dismissedWorkouts.has(link.id)
+  )
+
+  // Auto-show popup when there's a pending link (only once per session)
+  useEffect(() => {
+    if (currentPendingLink && currentView === 'patient' && !showWorkoutLinkPopup) {
+      // Delay showing the popup slightly so it feels natural
+      const timer = setTimeout(() => {
+        setShowWorkoutLinkPopup(true)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentPendingLink, currentView])
+
+  const handleLinkWorkout = (programId: string, rating?: number, notes?: string) => {
+    console.log('Linking workout to program:', { programId, rating, notes })
+    // In a real app, this would call an API to create the link
+    if (currentPendingLink) {
+      setDismissedWorkouts(prev => new Set([...prev, currentPendingLink.id]))
+    }
+    setShowWorkoutLinkPopup(false)
+  }
+
+  const handleSkipWorkout = () => {
+    if (currentPendingLink) {
+      setDismissedWorkouts(prev => new Set([...prev, currentPendingLink.id]))
+    }
+    setShowWorkoutLinkPopup(false)
+  }
+
+  const handleRemindLater = () => {
+    // Just close the popup, don't add to dismissed so it can show again
+    setShowWorkoutLinkPopup(false)
+  }
 
   const toggleReminder = (id: string) => {
     setReminders(reminders.map(reminder =>
@@ -90,9 +137,11 @@ function App() {
       {/* View Toggle - always visible */}
       <ViewToggle currentView={currentView} onToggle={setCurrentView} />
 
-      {/* Conditionally render Doctor or Patient portal */}
+      {/* Conditionally render Doctor, Trainer, or Patient portal */}
       {currentView === 'doctor' ? (
         <DoctorPortal />
+      ) : currentView === 'trainer' ? (
+        <TrainerPortal />
       ) : (
         <>
         <div className="min-h-screen bg-gray-50">
@@ -464,6 +513,17 @@ function App() {
         <VisitSummary
           data={customer1Data}
           onClose={() => setShowVisitSummary(false)}
+        />
+      )}
+
+      {/* Workout Link Popup - shows when device detects a workout */}
+      {showWorkoutLinkPopup && currentPendingLink && (
+        <WorkoutLinkPopup
+          pendingLink={currentPendingLink}
+          onLink={handleLinkWorkout}
+          onSkip={handleSkipWorkout}
+          onRemindLater={handleRemindLater}
+          onClose={() => setShowWorkoutLinkPopup(false)}
         />
       )}
         </div>

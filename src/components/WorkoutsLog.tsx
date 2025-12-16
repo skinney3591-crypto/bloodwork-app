@@ -1,15 +1,54 @@
-import { Dumbbell, Clock, Flame, Heart, TrendingUp, Calendar } from 'lucide-react'
+import { useState } from 'react'
+import { Dumbbell, Clock, Flame, Heart, TrendingUp, Calendar, Link2, CheckCircle, XCircle, ChevronDown } from 'lucide-react'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Workout } from '../data/mockData'
+import type { CompletedProgramWorkout, DailyProgram } from '../data/trainerData'
 import DeviceBadge from './DeviceBadge'
+import { mockCompletedProgramWorkouts, getClientDailyPrograms } from '../data/mockTrainerData'
 
 interface WorkoutsLogProps {
   workouts: Workout[]
+  clientId?: string  // Optional - for linking functionality
+  onLinkWorkout?: (workoutId: string, programId: string) => void
 }
 
-export default function WorkoutsLog({ workouts }: WorkoutsLogProps) {
+export default function WorkoutsLog({ workouts, clientId, onLinkWorkout }: WorkoutsLogProps) {
+  const [linkingWorkoutId, setLinkingWorkoutId] = useState<string | null>(null)
+
   // Get last 30 days
   const last30Days = workouts.slice(-30)
+
+  // Get linked workout info for this client
+  const getLinkedProgramInfo = (workoutId: string): CompletedProgramWorkout | undefined => {
+    return mockCompletedProgramWorkouts.find(
+      cpw => cpw.deviceWorkoutId === workoutId && cpw.status === 'linked'
+    )
+  }
+
+  // Get skipped workout info
+  const getSkippedWorkoutInfo = (workoutId: string): CompletedProgramWorkout | undefined => {
+    return mockCompletedProgramWorkouts.find(
+      cpw => cpw.deviceWorkoutId === workoutId && cpw.status === 'skipped'
+    )
+  }
+
+  // Get available programs for linking (programs assigned to client for that day)
+  const getAvailablePrograms = (workoutDate: string): DailyProgram[] => {
+    if (!clientId) return []
+    return getClientDailyPrograms(clientId, workoutDate)
+  }
+
+  // Handle link action
+  const handleLinkClick = (workoutId: string) => {
+    setLinkingWorkoutId(linkingWorkoutId === workoutId ? null : workoutId)
+  }
+
+  const handleSelectProgram = (workoutId: string, programId: string) => {
+    if (onLinkWorkout) {
+      onLinkWorkout(workoutId, programId)
+    }
+    setLinkingWorkoutId(null)
+  }
 
   // Calculate workout type distribution
   const typeDistribution = last30Days.reduce((acc, workout) => {
@@ -186,65 +225,155 @@ export default function WorkoutsLog({ workouts }: WorkoutsLogProps) {
         <div className="space-y-3">
           {recentWorkouts.map((workout) => {
             const Icon = getWorkoutIcon(workout.type)
+            const linkedInfo = getLinkedProgramInfo(workout.id)
+            const skippedInfo = getSkippedWorkoutInfo(workout.id)
+            const availablePrograms = getAvailablePrograms(workout.date)
+            const isLinking = linkingWorkoutId === workout.id
+            const canLink = clientId && !linkedInfo && !skippedInfo && availablePrograms.length > 0
+
             return (
               <div
-                key={workout.id}
-                className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3 flex-1">
-                    <div className={`bg-gradient-to-br ${getWorkoutColor(workout.type)} p-3 rounded-lg`}>
-                      <Icon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-semibold text-gray-900 capitalize">{workout.type}</h4>
-                        {workout.source !== 'manual' && (
-                          <DeviceBadge type={workout.source} size="sm" showLabel={false} />
+                    key={workout.id}
+                    className={`bg-gray-50 rounded-lg p-4 transition-colors border ${
+                      linkedInfo
+                        ? 'border-green-200 bg-green-50/50'
+                        : skippedInfo
+                        ? 'border-gray-200'
+                        : 'border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3 flex-1">
+                        <div className={`bg-gradient-to-br ${getWorkoutColor(workout.type)} p-3 rounded-lg`}>
+                          <Icon className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-gray-900 capitalize">{workout.type}</h4>
+                            {workout.source !== 'manual' && (
+                              <DeviceBadge type={workout.source} size="sm" showLabel={false} />
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {new Date(workout.date).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </p>
+
+                          {/* Linked Program Badge */}
+                          {linkedInfo && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                <CheckCircle className="h-3 w-3" />
+                                Linked: {linkedInfo.dailyProgramName}
+                              </span>
+                              {linkedInfo.rating && (
+                                <span className="text-yellow-500 text-sm">
+                                  {'★'.repeat(linkedInfo.rating)}{'☆'.repeat(5 - linkedInfo.rating)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Skipped Badge */}
+                          {skippedInfo && (
+                            <div className="mt-2">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded-full">
+                                <XCircle className="h-3 w-3" />
+                                Not a program workout
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4">
+                        <div className="grid grid-cols-3 gap-4 text-right">
+                          <div>
+                            <p className="text-xs text-gray-500">Duration</p>
+                            <p className="text-sm font-semibold text-gray-900">{workout.duration} min</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Calories</p>
+                            <p className="text-sm font-semibold text-gray-900">{workout.caloriesBurned}</p>
+                          </div>
+                          {workout.distance && (
+                            <div>
+                              <p className="text-xs text-gray-500">Distance</p>
+                              <p className="text-sm font-semibold text-gray-900">{workout.distance} mi</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Link Button */}
+                        {canLink && (
+                          <button
+                            onClick={() => handleLinkClick(workout.id)}
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                              isLinking
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            }`}
+                          >
+                            <Link2 className="h-4 w-4" />
+                            Link
+                            <ChevronDown className={`h-4 w-4 transition-transform ${isLinking ? 'rotate-180' : ''}`} />
+                          </button>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1 flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {new Date(workout.date).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </p>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-right ml-4">
-                    <div>
-                      <p className="text-xs text-gray-500">Duration</p>
-                      <p className="text-sm font-semibold text-gray-900">{workout.duration} min</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Calories</p>
-                      <p className="text-sm font-semibold text-gray-900">{workout.caloriesBurned}</p>
-                    </div>
-                    {workout.distance && (
-                      <div>
-                        <p className="text-xs text-gray-500">Distance</p>
-                        <p className="text-sm font-semibold text-gray-900">{workout.distance} mi</p>
+                    {/* Heart Rate Info */}
+                    {workout.averageHeartRate && (
+                      <div className="mt-3 pt-3 border-t border-gray-200 flex items-center space-x-4 text-sm">
+                        <div className="flex items-center space-x-1 text-gray-600">
+                          <Heart className="h-4 w-4 text-red-500" />
+                          <span>Avg HR: <span className="font-medium text-gray-900">{workout.averageHeartRate} bpm</span></span>
+                        </div>
+                        {workout.maxHeartRate && (
+                          <div className="flex items-center space-x-1 text-gray-600">
+                            <TrendingUp className="h-4 w-4 text-orange-500" />
+                            <span>Max: <span className="font-medium text-gray-900">{workout.maxHeartRate} bpm</span></span>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                </div>
 
-                {/* Heart Rate Info */}
-                {workout.averageHeartRate && (
-                  <div className="mt-3 pt-3 border-t border-gray-200 flex items-center space-x-4 text-sm">
-                    <div className="flex items-center space-x-1 text-gray-600">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <span>Avg HR: <span className="font-medium text-gray-900">{workout.averageHeartRate} bpm</span></span>
-                    </div>
-                    {workout.maxHeartRate && (
-                      <div className="flex items-center space-x-1 text-gray-600">
-                        <TrendingUp className="h-4 w-4 text-orange-500" />
-                        <span>Max: <span className="font-medium text-gray-900">{workout.maxHeartRate} bpm</span></span>
+                    {/* Link Dropdown */}
+                    {isLinking && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Link to a program:</p>
+                        <div className="space-y-2">
+                          {availablePrograms.map((program) => (
+                            <button
+                              key={program.id}
+                              onClick={() => handleSelectProgram(workout.id, program.id)}
+                              className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors text-left"
+                            >
+                              <div>
+                                <p className="font-medium text-gray-900">{program.name}</p>
+                                <p className="text-xs text-gray-500">{program.exercises.length} exercises</p>
+                              </div>
+                              <CheckCircle className="h-5 w-5 text-gray-300" />
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setLinkingWorkoutId(null)}
+                            className="w-full py-2 text-sm text-gray-500 hover:text-gray-700"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     )}
+
+                {/* Linked workout notes */}
+                {linkedInfo?.notes && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-sm text-gray-600 italic">"{linkedInfo.notes}"</p>
                   </div>
                 )}
               </div>
