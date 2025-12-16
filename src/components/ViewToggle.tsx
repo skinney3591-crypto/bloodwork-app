@@ -31,7 +31,7 @@ export default function ViewToggle({ currentView, onToggle }: ViewToggleProps) {
             onClick={() => handleSelectView('patient')}
             className={`flex items-center space-x-2 px-4 py-3 transition-all duration-300 ${
               currentView === 'patient'
-                ? 'bg-markr-blue text-white'
+                ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-600 hover:bg-gray-50'
             } ${isAnimating ? 'scale-95' : 'scale-100'}`}
             title="Switch to Patient View"
